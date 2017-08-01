@@ -66,7 +66,7 @@ $(function() {
 
 Other than handling the files on the server side of things and leveraging the various callbacks, that's pretty much it for basic usage.
 
-The request to the server is expected to respond with JSON in one of two formats:
+The server should reply with the following JSON object format for successful uploads:
 
 ```json
 {
@@ -74,7 +74,7 @@ The request to the server is expected to respond with JSON in one of two formats
 }
 ```
 
-For successful upload operations.  Reply with this format:
+The server should reply with the following JSON object format for error conditions:
 
 ```json
 {
@@ -84,7 +84,7 @@ For successful upload operations.  Reply with this format:
 }
 ```
 
-For error conditions.  See [Admin Pack](https://github.com/cubiclesoft/admin-pack/blob/master/admin.php) and [FlexForms](https://github.com/cubiclesoft/php-flexforms/blob/master/support/flex_forms.php) for example server-side code handling of Fancy File Uploader submissions.
+See [Admin Pack](https://github.com/cubiclesoft/admin-pack/blob/master/admin.php) and [FlexForms](https://github.com/cubiclesoft/php-flexforms/blob/master/support/flex_forms.php) for example server-side code that handles Fancy File Uploader submissions.
 
 To automatically start every upload as soon as it is added, do something similar to this:
 
@@ -106,10 +106,10 @@ $(function() {
 </script>
 ```
 
-It is possible to add a button to the screen to start all of the uploads at once that can be started:
+It is possible to add a button to the screen to start all of the uploads at once that are able to be started:
 
 ```html
-<button type="button" onclick="$('#thefiles').find('.ff_fileupload_actions button.ff_fileupload_start_upload').click(); return false;">Upload all files</button>
+<button type="button" onclick="$('#thefiles').next().find('.ff_fileupload_actions button.ff_fileupload_start_upload').click(); return false;">Upload all files</button>
 ```
 
 The specialized function `data.ff_info.RemoveFile()` can be used at any time to remove a file from the list which will immediately abort any upload in progress, remove the associated UI elements, and clean up internal structures:
