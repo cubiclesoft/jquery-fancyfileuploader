@@ -84,7 +84,7 @@ The server should reply with the following JSON object format for error conditio
 }
 ```
 
-See [Admin Pack](https://github.com/cubiclesoft/admin-pack/blob/master/admin.php) and [FlexForms](https://github.com/cubiclesoft/php-flexforms/blob/master/support/flex_forms.php) for example server-side code that handles Fancy File Uploader submissions.
+See [Admin Pack](https://github.com/cubiclesoft/admin-pack/blob/master/admin.php) and [FlexForms](https://github.com/cubiclesoft/php-flexforms/blob/master/support/flex_forms.php) for example PHP code that handles Fancy File Uploader submissions.  Fancy File Uploader works with most server-side languages.
 
 To automatically start every upload as soon as it is added, do something similar to this:
 
