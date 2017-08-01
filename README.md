@@ -166,7 +166,7 @@ $(function() {
 </script>
 ```
 
-To remove the widget altogether and restore the original file input, call `$('#thefiles').FancyFileUpload('destroy');`.
+To remove the widget altogether and restore the original file input, call:  `$('#thefiles').FancyFileUpload('destroy');`
 
 Options
 -------
