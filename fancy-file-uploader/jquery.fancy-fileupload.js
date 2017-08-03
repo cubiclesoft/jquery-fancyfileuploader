@@ -110,7 +110,11 @@
 			}
 		});
 
-		if (!$('.ff_fileupload_hidden').length)  $(document).off('drop.fancy_fileupload dragover.fancy_fileupload');
+		if (!$('.ff_fileupload_hidden').length)
+		{
+			$(document).off('drop.fancy_fileupload dragover.fancy_fileupload');
+			$(window).off('beforeunload.fancy_fileupload');
+		}
 
 		if (typeof(options) === 'string' && options === 'destroy')  return this;
 
@@ -128,10 +132,22 @@
 		};
 
 		// Prevent the user from leaving the page if there is an active upload.
-		var activeuploads = 0;
+		// Most browsers won't show the custom message.  So make the relevant UI elements bounce using CSS.
+		$(window).on('beforeunload.fancy_fileupload', function(e) {
+			var active = $('.ff_fileupload_uploading');
+			var queued = $('.ff_fileupload_queued');
 
-		$(window).on('beforeunload', function(e) {
-			if (activeuploads > 0)  return Translate('There is a file upload still in progress.  Leaving the page will cancel the upload.\n\nAre you sure you want to leave this page?');
+			if (active.length || queued.length)
+			{
+				active.removeClass('ff_fileupload_bounce');
+				setTimeout(function() { active.addClass('ff_fileupload_bounce') }, 250);
+
+				queued.removeClass('ff_fileupload_bounce');
+				setTimeout(function() { queued.addClass('ff_fileupload_bounce') }, 250);
+
+				if (active.length)  return Translate('There is a file upload still in progress.  Leaving the page will cancel the upload.\n\nAre you sure you want to leave this page?');
+				if (queued.length)  return Translate('There is a file that was added to the queue but the upload has not been started.  Leaving the page will clear the queue and not upload the file.\n\nAre you sure you want to leave this page?');
+			}
 		});
 
 		// Create some extra DOM nodes for preview checking.
@@ -152,7 +168,6 @@
 			data.ff_info.errors = [];
 			data.ff_info.retries = 0;
 			data.ff_info.retrydelay = settings.retrydelay;
-			data.ff_info.uploading = false;
 			data.ff_info.removewidget = false;
 			data.ff_info.inforow = inforow;
 			data.ff_info.displayfilesize = GetDisplayFilesize(data.files[0].size, settings.adjustprecision, settings.displayunits);
@@ -193,9 +208,10 @@
 				inforow.find('button.ff_fileupload_remove_file').attr('aria-label', Translate('Cancel upload and remove from list'));
 
 				// Begin the actual upload.
+				inforow.removeClass('ff_fileupload_queued');
+
 				var SubmitUpload = function() {
-					activeuploads++;
-					data.ff_info.uploading = true;
+					inforow.addClass('ff_fileupload_uploading');
 					data.submit();
 				};
 
@@ -206,7 +222,7 @@
 			var RemoveFile = function(e) {
 				e.preventDefault();
 
-				if (data.ff_info.uploading)
+				if (inforow.hasClass('ff_fileupload_uploading'))
 				{
 					if (!confirm(Translate('This file is currently being uploaded.\n\nStop the upload and remove the file from the list?')))  return;
 
@@ -222,7 +238,7 @@
 			};
 
 			data.ff_info.RemoveFile = function() {
-				if (data.ff_info.uploading)
+				if (inforow.hasClass('ff_fileupload_uploading'))
 				{
 					data.ff_info.removewidget = true;
 					data.abort();
@@ -321,6 +337,8 @@
 			{
 				inforow.find('.ff_fileupload_actions').append($('<button>').addClass('ff_fileupload_start_upload').attr('type', 'button').attr('aria-label', Translate('Start uploading')).click(StartUpload));
 				inforow.find('.ff_fileupload_actions_mobile').append($('<button>').addClass('ff_fileupload_start_upload').attr('type', 'button').attr('aria-label', Translate('Start uploading')).click(StartUpload));
+
+				inforow.addClass('ff_fileupload_queued');
 			}
 
 			inforow.find('.ff_fileupload_actions').append($('<button>').addClass('ff_fileupload_remove_file').attr('type', 'button').attr('aria-label', Translate('Remove from list')).click(RemoveFile));
@@ -363,8 +381,7 @@
 				return;
 			}
 
-			activeuploads--;
-			data.ff_info.uploading = false;
+			data.ff_info.inforow.removeClass('ff_fileupload_uploading');
 
 			if (settings.uploadcancelled)  settings.uploadcancelled.call(data.ff_info.inforow, e, data);
 
@@ -404,8 +421,7 @@
 				return;
 			}
 
-			activeuploads--;
-			data.ff_info.uploading = false;
+			data.ff_info.inforow.removeClass('ff_fileupload_uploading');
 
 			if (settings.uploadcompleted)  settings.uploadcompleted.call(data.ff_info.inforow, e, data);
 
