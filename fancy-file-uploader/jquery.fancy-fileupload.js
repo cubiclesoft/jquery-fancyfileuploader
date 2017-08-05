@@ -209,8 +209,10 @@
 
 				// Begin the actual upload.
 				inforow.removeClass('ff_fileupload_queued');
+				inforow.addClass('ff_fileupload_starting');
 
 				var SubmitUpload = function() {
+					inforow.removeClass('ff_fileupload_starting');
 					inforow.addClass('ff_fileupload_uploading');
 					data.submit();
 				};
@@ -231,6 +233,13 @@
 				}
 				else
 				{
+					if (inforow.hasClass('ff_fileupload_starting'))
+					{
+						if (!confirm(Translate('This file is waiting to start.\n\nCancel the operation and remove the file from the list?')))  return;
+
+						if (settings.uploadcancelled)  settings.uploadcancelled.call(data.ff_info.inforow, e, data);
+					}
+
 					inforow.remove();
 
 					delete data.ff_info;
@@ -245,6 +254,11 @@
 				}
 				else
 				{
+					if (inforow.hasClass('ff_fileupload_starting'))
+					{
+						if (settings.uploadcancelled)  settings.uploadcancelled.call(data.ff_info.inforow, e, data);
+					}
+
 					inforow.remove();
 
 					delete data.ff_info;
