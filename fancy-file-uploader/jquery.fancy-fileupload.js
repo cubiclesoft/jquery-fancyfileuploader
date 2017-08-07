@@ -2,7 +2,7 @@
 // (C) 2017 CubicleSoft.  All Rights Reserved.
 
 (function($) {
-	var EscapeHTML = function (text) {
+	var EscapeHTML = function(text) {
 		var map = {
 			'&': '&amp;',
 			'<': '&lt;',
@@ -120,6 +120,9 @@
 
 		var settings = $.extend({}, $.fn.FancyFileUpload.defaults, options);
 
+		// Let custom callbacks make last second changes to the finalized settings.
+		if (settings.preinit)  settings.preinit(settings);
+
 		// Prevent default file drag-and-drop operations.
 		$(document).off('drop.fancy_fileupload dragover.fancy_fileupload');
 		$(document).on('drop.fancy_fileupload dragover.fancy_fileupload', function (e) {
@@ -134,7 +137,7 @@
 		// Prevent the user from leaving the page if there is an active upload.
 		// Most browsers won't show the custom message.  So make the relevant UI elements bounce using CSS.
 		$(window).on('beforeunload.fancy_fileupload', function(e) {
-			var active = $('.ff_fileupload_uploading');
+			var active = $('.ff_fileupload_uploading, .ff_fileupload_starting');
 			var queued = $('.ff_fileupload_queued');
 
 			if (active.length || queued.length)
@@ -380,6 +383,13 @@
 		};
 
 		var UploadFailed = function(e, data) {
+			// For handling chunked upload termination.
+			if (data.ff_info.lastresult && !data.ff_info.lastresult.success)
+			{
+				data.result = data.ff_info.lastresult;
+				data.errorThrown = 'failed_with_msg';
+			}
+
 			if (data.errorThrown !== 'abort' && data.errorThrown !== 'failed_with_msg' && data.uploadedBytes < data.files[0].size && data.ff_info.retries < settings.retries)
 			{
 				data.ff_info.fileinfo.text(FormatStr(Translate('{0} | Network error, retrying in a moment...'), data.ff_info.displayfilesize));
@@ -425,7 +435,7 @@
 			if (!data.result.success)
 			{
 				if (typeof(data.result.error) !== 'string')  data.result.error = Translate('The server indicated that the upload was not successful.  No additional information available.');
-				if (typeof(data.result.errorcode) !== 'string')  data.result.errorcode = Translate('server_response');
+				if (typeof(data.result.errorcode) !== 'string')  data.result.errorcode = 'server_response';
 
 				data.errorThrown = 'failed_with_msg';
 				data.ff_info.removewidget = false;
@@ -458,12 +468,40 @@
 			}
 		};
 
+		var UploadChunkSend = function(e, data) {
+			if (data.ff_info)
+			{
+				if (settings.continueupload && settings.continueupload.call(data.ff_info.inforow, e, data) === false)
+				{
+					if (!data.ff_info.lastresult || data.ff_info.lastresult.success)
+					{
+						data.ff_info.lastresult = {
+							'success' : false
+						};
+					}
+				}
+
+				if (data.ff_info.lastresult && !data.ff_info.lastresult.success)
+				{
+					data.result = data.ff_info.lastresult;
+
+					if (typeof(data.ff_info.lastresult.error) !== 'string')  data.ff_info.lastresult.error = Translate('The server indicated that the upload was not successful.  No additional information available.');
+					if (typeof(data.ff_info.lastresult.errorcode) !== 'string')  data.ff_info.lastresult.errorcode = 'server_response';
+
+					data.ff_info.removewidget = false;
+
+					return false;
+				}
+			}
+		};
+
 		var UploadChunkDone = function(e, data) {
 			// Reset retries for successful chunked uploads.
 			data.ff_info.retries = 0;
 			data.ff_info.retrydelay = settings.retrydelay;
 
-			if (!data.result.success)  data.abort();
+			// Save for the next UploadChunkSend() call.
+			data.ff_info.lastresult = data.result;
 		};
 
 
@@ -566,6 +604,7 @@
 				progress: UploadProgress,
 				fail: UploadFailed,
 				done: UploadDone,
+				chunksend: UploadChunkSend,
 				chunkdone: UploadChunkDone
 			};
 
@@ -590,6 +629,7 @@
 		'adjustprecision' : true,
 		'retries' : 5,
 		'retrydelay' : 500,
+		'preinit' : null,
 		'added' : null,
 		'startupload' : null,
 		'continueupload' : null,
