@@ -102,7 +102,7 @@ Fancy File Uploader works with most server-side languages.  For basic server-sid
 			"gif" => true,
 		);
 
-		$files = FancyFileUploaderHelper::NormalizeFiles("file2");
+		$files = FancyFileUploaderHelper::NormalizeFiles("files");
 		if (!isset($files[0]))  $result = array("success" => false, "error" => "File data was submitted but is missing.", "errorcode" => "bad_input");
 		else if (!$files[0]["success"])  $result = $files[0];
 		else if (!isset($allowedexts[strtolower($files[0]["ext"])]))
