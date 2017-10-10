@@ -125,6 +125,7 @@ Fancy File Uploader works with most server-side languages.  For basic server-sid
 			else
 			{
 				// [Do stuff with the file here.]
+				// copy($files[0]["file"], __DIR__ . "/images/" . $id . "." . strtolower($files[0]["ext"]));
 			}
 
 			$result = array(
