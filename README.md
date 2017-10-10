@@ -66,6 +66,9 @@ $(function() {
 
 Other than handling the files on the server side of things and leveraging the various callbacks, that's pretty much it for basic usage.
 
+Server-Side Processing
+----------------------
+
 The server should reply with the following JSON object format for successful uploads:
 
 ```json
@@ -140,6 +143,9 @@ Fancy File Uploader works with most server-side languages.  For basic server-sid
 ```
 
 The class also contains `FancyFileUploaderHelper::GetMaxUploadFileSize()`, which determines the maximum allowed file/chunk upload size that PHP allows.
+
+Additional Examples
+-------------------
 
 To automatically start every upload as soon as it is added, do something similar to this:
 
