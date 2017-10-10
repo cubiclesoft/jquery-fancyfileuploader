@@ -90,11 +90,11 @@ Fancy File Uploader works with most server-side languages.  For basic server-sid
 
 ```php
 <?php
+	require_once "fancy_file_uploader_helper.php";
+
 	if (isset($_REQUEST["fileuploader"]))
 	{
 		header("Content-Type: application/json");
-
-		require_once "fancy_file_uploader_helper.php";
 
 		$allowedexts = array(
 			"jpg" => true,
