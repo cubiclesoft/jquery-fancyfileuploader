@@ -84,7 +84,62 @@ The server should reply with the following JSON object format for error conditio
 }
 ```
 
-See [Admin Pack](https://github.com/cubiclesoft/admin-pack/blob/master/admin.php) and [FlexForms](https://github.com/cubiclesoft/php-flexforms/blob/master/support/flex_forms.php) for example PHP code that handles Fancy File Uploader submissions.  Fancy File Uploader works with most server-side languages.
+See [FlexForms Modules](https://github.com/cubiclesoft/php-flexforms-modules), [Admin Pack](https://github.com/cubiclesoft/admin-pack/blob/master/admin.php), and [FlexForms](https://github.com/cubiclesoft/php-flexforms) for example usage with open source CubicleSoft products that handle Fancy File Uploader submissions.
+
+Fancy File Uploader works with most server-side languages.  For basic server-side PHP integration with Fancy File Uploader, you can use the included server-side helper class:
+
+```php
+<?php
+	if (isset($_REQUEST["fileuploader"]))
+	{
+		header("Content-Type: application/json");
+
+		require_once "fancy_file_uploader_helper.php";
+
+		$allowedexts = array(
+			"jpg" => true,
+			"png" => true,
+			"gif" => true,
+		);
+
+		$files = FancyFileUploaderHelper::NormalizeFiles("file2");
+		if (!isset($files[0]))  $result = array("success" => false, "error" => "File data was submitted but is missing.", "errorcode" => "bad_input");
+		else if (!$files[0]["success"])  $result = $files[0];
+		else if (!isset($allowedexts[strtolower($files[0]["ext"])]))
+		{
+			$result = array(
+				"success" => false,
+				"error" => "Invalid file extension.  Must be '.jpg', '.png', or '.gif'.",
+				"errorcode" => "invalid_file_ext"
+			);
+		}
+		else
+		{
+			// For chunked file uploads, get the current filename and starting position from the incoming headers.
+			$name = FancyFileUploaderHelper::GetChunkFilename();
+			if ($name !== false)
+			{
+				$startpos = FancyFileUploaderHelper::GetFileStartPosition();
+
+				// [Do stuff with the file chunk.]
+			}
+			else
+			{
+				// [Do stuff with the file here.]
+			}
+
+			$result = array(
+				"success" => true
+			);
+		}
+
+		echo json_encode($result, JSON_UNESCAPED_SLASHES);
+		exit();
+	}
+?>
+```
+
+The class also contains `FancyFileUploaderHelper::GetMaxUploadFileSize()`, which determines the maximum allowed file/chunk upload size that PHP allows.
 
 To automatically start every upload as soon as it is added, do something similar to this:
 
