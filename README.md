@@ -9,6 +9,8 @@ Also available in [FlexForms Modules](https://github.com/cubiclesoft/php-flexfor
 
 [Live demo via Admin Pack](https://barebonescms.com/demos/admin_pack/admin.php?action=addeditexample&sec_t=7a110e04a283159db5a4e282c76e29b02e70e52c) (This plugin is located near the bottom of that page.)
 
+Also used by [Cool File Transfer](https://github.com/cubiclesoft/php-cool-file-transfer).
+
 Features
 --------
 
@@ -95,7 +97,8 @@ Fancy File Uploader works with most server-side languages.  For basic server-sid
 <?php
 	require_once "fancy_file_uploader_helper.php";
 
-	if (isset($_REQUEST["fileuploader"]))
+	// Depending on your server, you might have to use $_POST instead of $_REQUEST.
+	if (isset($_REQUEST["action"]) && $_REQUEST["action"] === "fileuploader")
 	{
 		header("Content-Type: application/json");
 
