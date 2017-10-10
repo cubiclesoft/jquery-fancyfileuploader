@@ -99,7 +99,6 @@ Fancy File Uploader works with most server-side languages.  For basic server-sid
 		$allowedexts = array(
 			"jpg" => true,
 			"png" => true,
-			"gif" => true,
 		);
 
 		$files = FancyFileUploaderHelper::NormalizeFiles("files");
@@ -109,7 +108,7 @@ Fancy File Uploader works with most server-side languages.  For basic server-sid
 		{
 			$result = array(
 				"success" => false,
-				"error" => "Invalid file extension.  Must be '.jpg', '.png', or '.gif'.",
+				"error" => "Invalid file extension.  Must be '.jpg' or '.png'.",
 				"errorcode" => "invalid_file_ext"
 			);
 		}
