@@ -89,7 +89,7 @@ The server should reply with the following JSON object format for error conditio
 }
 ```
 
-See [FlexForms Modules](https://github.com/cubiclesoft/php-flexforms-modules), [Admin Pack](https://github.com/cubiclesoft/admin-pack/blob/master/admin.php), and [FlexForms](https://github.com/cubiclesoft/php-flexforms) for example usage with open source CubicleSoft products that handle Fancy File Uploader submissions.
+See [FlexForms Modules](https://github.com/cubiclesoft/php-flexforms-modules), [Admin Pack](https://github.com/cubiclesoft/admin-pack), and [FlexForms](https://github.com/cubiclesoft/php-flexforms) for example usage with open source CubicleSoft products that handle Fancy File Uploader submissions.
 
 Fancy File Uploader works with most server-side languages.  For basic server-side PHP integration with Fancy File Uploader, you can use the included server-side helper class:
 
