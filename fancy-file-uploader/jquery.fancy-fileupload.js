@@ -50,7 +50,7 @@
 		return (pos == 0 || (adjustprecision && result >= 99.995) ? result.toFixed(0) : result.toFixed(2)) + ' ' + abbreviations[pos];
 	};
 
-	var DisplayPreviewDialog = function(preview, endelem) {
+	var DisplayPreviewDialog = function(preview, endelem, inforow, data, settings) {
 		var previewbackground = $('<div class="ff_fileupload_dialog_background"></div>');
 		var previewclone = preview.clone(true, true).click(function(e) {
 			e.stopPropagation();
@@ -62,6 +62,8 @@
 
 			previewbackground.remove();
 			endelem.focus();
+
+			if (settings.hidepreview)  settings.hidepreview.call(inforow, data, preview, previewclone);
 		};
 
 		$(document).on('keyup.fancy_fileupload', function(e) {
@@ -75,7 +77,9 @@
 		});
 
 		$('body').append(previewbackground);
-		preview.focus();
+		previewclone.focus();
+
+		if (settings.showpreview)  settings.showpreview.call(inforow, data, preview, previewclone);
 	};
 
 	var InitShowAriaLabelInfo = function(inforow) {
@@ -304,7 +308,7 @@
 					e.preventDefault();
 
 					this.blur();
-					DisplayPreviewDialog(preview, this);
+					DisplayPreviewDialog(preview, this, inforow, data, settings);
 				});
 			}
 			else
@@ -631,6 +635,8 @@
 		'retrydelay' : 500,
 		'preinit' : null,
 		'added' : null,
+		'showpreview' : null,
+		'hidepreview' : null,
 		'startupload' : null,
 		'continueupload' : null,
 		'uploadcancelled' : null,
