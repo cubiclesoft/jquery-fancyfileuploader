@@ -594,7 +594,7 @@
 
 			// Initialize jQuery File Upload using the hidden form and visible dropzone.
 			var baseoptions = {
-				url: url,
+				url: settings.url,
 				dataType: 'json',
 				pasteZone: dropzonewrap,
 				limitConcurrentUploads: 2
