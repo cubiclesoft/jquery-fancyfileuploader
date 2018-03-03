@@ -51,11 +51,11 @@
 	};
 
 	var DisplayPreviewDialog = function(preview, endelem, inforow, data, settings) {
-		var previewbackground = $('<div class="ff_fileupload_dialog_background"></div>');
+		var previewbackground = $('<div>').addClass('ff_fileupload_dialog_background');
 		var previewclone = preview.clone(true, true).click(function(e) {
 			e.stopPropagation();
 		});
-		var previewdialog = $('<div class="ff_fileupload_dialog_main"></div>').append(previewclone);
+		var previewdialog = $('<div>').addClass('ff_fileupload_dialog_main').append(previewclone);
 
 		var HidePreviewDialog = function() {
 			$(document).off('keyup.fancy_fileupload');
