@@ -1,5 +1,5 @@
 // jQuery plugin to display a custom jQuery File Uploader interface.
-// (C) 2017 CubicleSoft.  All Rights Reserved.
+// (C) 2019 CubicleSoft.  All Rights Reserved.
 
 (function($) {
 	var EscapeHTML = function(text) {
@@ -396,9 +396,14 @@
 
 			if (data.errorThrown !== 'abort' && data.errorThrown !== 'failed_with_msg' && data.uploadedBytes < data.files[0].size && data.ff_info.retries < settings.retries)
 			{
-				data.ff_info.fileinfo.text(FormatStr(Translate('{0} | Network error, retrying in a moment...'), data.ff_info.displayfilesize));
+				data.ff_info.fileinfo.text(FormatStr(Translate('{0} | Network error, retrying in a moment... ({1})'), data.ff_info.displayfilesize, data.errorThrown));
+
+				data.ff_info.inforow.removeClass('ff_fileupload_uploading');
+				data.ff_info.inforow.addClass('ff_fileupload_starting');
 
 				setTimeout(function() {
+					data.ff_info.inforow.removeClass('ff_fileupload_starting');
+					data.ff_info.inforow.addClass('ff_fileupload_uploading');
 					data.data = null;
 					data.submit();
 				}, data.ff_info.retrydelay);
@@ -585,6 +590,120 @@
 				form.find('input[type=file]').click();
 			});
 
+			// Add special recording buttons (if enabled).
+			var dropzonetools = $('<div>').addClass('ff_fileupload_dropzone_tools');
+			dropzonewrap.append(dropzonetools);
+
+			// Record audio.
+			if (settings.recordaudio && navigator.mediaDevices && window.MediaRecorder)
+			{
+				var audiobutton = $('<button>').addClass('ff_fileupload_dropzone_tool').addClass('ff_fileupload_recordaudio').attr('type', 'button').attr('aria-label', Translate('Record audio using a microphone'));
+				dropzonetools.append(audiobutton);
+
+				var audiorec = null;
+				var audiochunks = [];
+				audiobutton.click(function(e) {
+					e.preventDefault();
+
+					if (!audiorec)
+					{
+						navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+							audiorec = new MediaRecorder(stream, settings.audiosettings);
+
+							audiorec.addEventListener('dataavailable', function(e) {
+								if (e.data.size > 0)  audiochunks.push(e.data);
+
+								if (audiorec.state === 'inactive')
+								{
+									var blob = new Blob(audiochunks, { type: 'audio/mp3' });
+									blob.lastModifiedDate = new Date();
+									blob.lastModified = Math.floor(blob.lastModifiedDate.getTime() / 1000);
+									blob.name = FormatStr(Translate('Audio recording - {0}.mp3'), blob.lastModifiedDate.toLocaleString());
+
+									fileinput.fileupload('add', { files: [blob] });
+
+									audiobutton.removeClass('ff_fileupload_recording');
+									audiochunks = [];
+									audiorec = null;
+								}
+							});
+
+							audiorec.start();
+							audiobutton.addClass('ff_fileupload_recording');
+						}).catch(function(e) {
+							alert(Translate('Unable to record audio.  Either a microphone was not found or access was denied.'));
+						});
+					}
+					else
+					{
+						audiorec.stop();
+					}
+				});
+			}
+
+			// Record video.
+			if (settings.recordvideo && navigator.mediaDevices && window.MediaRecorder)
+			{
+				var videobutton = $('<button>').addClass('ff_fileupload_dropzone_tool').addClass('ff_fileupload_recordvideo').attr('type', 'button').attr('aria-label', Translate('Record video using a camera'));
+				dropzonetools.append(videobutton);
+
+				var videorecpreview = $('<video>').prop('muted', true).prop('autoplay', true).addClass('ff_fileupload_recordvideo_preview').addClass('ff_fileupload_hidden');
+				dropzonewrap.append(videorecpreview);
+
+				var videorec = null;
+				var videochunks = [];
+				videobutton.click(function(e) {
+					e.preventDefault();
+
+					if (!videorec)
+					{
+						var streamhandler = function(stream) {
+							videorec = new MediaRecorder(stream, settings.videosettings);
+
+							videorec.addEventListener('dataavailable', function(e) {
+								if (e.data.size > 0)  videochunks.push(e.data);
+
+								if (videorec.state === 'inactive')
+								{
+									var blob = new Blob(videochunks, { type: 'video/mp4' });
+									blob.lastModifiedDate = new Date();
+									blob.lastModified = Math.floor(blob.lastModifiedDate.getTime() / 1000);
+									blob.name = FormatStr(Translate('Video recording - {0}.mp4'), blob.lastModifiedDate.toLocaleString());
+
+									fileinput.fileupload('add', { files: [blob] });
+
+									videobutton.removeClass('ff_fileupload_recording');
+									videorecpreview.addClass('ff_fileupload_hidden');
+									if (videorecpreview[0].src !== '')  videorecpreview[0].src = '';
+									videorecpreview[0].srcObject = null;
+									videochunks = [];
+									videorec = null;
+								}
+							});
+
+							videorec.start();
+							videobutton.addClass('ff_fileupload_recording');
+
+							// Display a preview box with just the video stream.
+							try { videorecpreview[0].src = URL.createObjectURL(stream); } catch { videorecpreview[0].srcObject = stream; }
+
+							videorecpreview.removeClass('ff_fileupload_hidden');
+						};
+
+						// Video with audio (e.g. webcam) with fallback to video only (e.g. some screen recording codecs).
+						navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(streamhandler).catch(function(e) {
+							navigator.mediaDevices.getUserMedia({ video: true }).then(streamhandler).catch(function(e) {
+								alert(Translate('Unable to record video.  Either a camera was not found or access was denied.'));
+							});
+						});
+					}
+					else
+					{
+						videorec.stop();
+					}
+				});
+			}
+
 			// Add a table to track unprocessed and in-progress uploads.
 			var uploads = $('<table>').addClass('ff_fileupload_uploads');
 			fileuploadwrap.append(uploads);
@@ -633,6 +752,10 @@
 		'adjustprecision' : true,
 		'retries' : 5,
 		'retrydelay' : 500,
+		'recordaudio' : false,
+		'audiosettings' : {},
+		'recordvideo' : false,
+		'videosettings' : {},
 		'preinit' : null,
 		'added' : null,
 		'showpreview' : null,

@@ -1,8 +1,27 @@
 .ff_fileupload_hidden { display: none; }
 
+.ff_fileupload_wrap .ff_fileupload_dropzone_wrap { position: relative; }
+
 .ff_fileupload_wrap .ff_fileupload_dropzone { display: block; width: 100%; height: 200px; box-sizing: border-box; border: 2px dashed #A2B4CA; border-radius: 3px; padding: 0; background-color: #FCFCFC; background-image: url('fancy_upload.png'); background-repeat: no-repeat; background-position: center center; opacity: 0.85; cursor: pointer; outline: none; }
 .ff_fileupload_wrap .ff_fileupload_dropzone::-moz-focus-inner { border: 0; }
 .ff_fileupload_wrap .ff_fileupload_dropzone:hover, .ff_fileupload_wrap .ff_fileupload_dropzone:focus, .ff_fileupload_wrap .ff_fileupload_dropzone:active { opacity: 1; background-color: #FDFDFD; border-color: #157EFB; }
+
+.ff_fileupload_wrap .ff_fileupload_dropzone_tools { position: absolute; right: 10px; top: 0; }
+.ff_fileupload_wrap .ff_fileupload_dropzone_tool { display: block; margin-top: 10px; width: 40px; height: 40px; box-sizing: border-box; border: 1px solid #A2B4CA; border-radius: 3px; padding: 0; background-color: #FDFDFD; background-repeat: no-repeat; background-position: center center; opacity: 0.85; cursor: pointer; outline: none; }
+.ff_fileupload_wrap .ff_fileupload_dropzone_tool::-moz-focus-inner { border: 0; }
+.ff_fileupload_wrap .ff_fileupload_dropzone_tool:hover, .ff_fileupload_wrap .ff_fileupload_dropzone_tool:focus, .ff_fileupload_wrap .ff_fileupload_dropzone_tool:active { opacity: 1; background-color: #FFFFFF; border-color: #157EFB; }
+
+.ff_fileupload_wrap .ff_fileupload_recordaudio { background-image: url('fancy_microphone.png'); }
+.ff_fileupload_wrap .ff_fileupload_recordvideo { background-image: url('fancy_webcam.png'); }
+.ff_fileupload_wrap .ff_fileupload_recordvideo_preview { position: absolute; display: block; right: 60px; top: 10px; width: 320px; max-width: calc(100% - 70px); height: calc(100% - 20px); background-color: #222222; }
+.ff_fileupload_wrap .ff_fileupload_recordvideo_preview.ff_fileupload_hidden { display: none; }
+
+@keyframes ff_fileupload_recording_animate {
+	from { border-color: #EF1F1F; }
+	to { border-color: #C9A1A1; }
+}
+
+.ff_fileupload_wrap .ff_fileupload_recording { animation: ff_fileupload_recording_animate 1.2s infinite alternate; }
 
 .ff_fileupload_wrap table.ff_fileupload_uploads { width: 100%; border-collapse: collapse !important; border: 0 none; }
 .ff_fileupload_wrap table.ff_fileupload_uploads tr, .ff_fileupload_wrap table.ff_fileupload_uploads td { margin: 0; border: 0 none; padding: 0; }

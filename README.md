@@ -16,11 +16,12 @@ Also used by [Cool File Transfer](https://github.com/cubiclesoft/php-cool-file-t
 Features
 --------
 
-* Beautiful and fully responsive layout.
+* Beautiful, compact, and fully responsive layout.
 * Drag-and-drop dropzone with paste support.
 * Full keyboard navigation.
 * Client-side file naming.
 * Preview support for images, audio, and video.
+* Supports recording directly from a microphone or webcam/camera.
 * Chunked file upload support.
 * Lots of useful callbacks.
 * Automatic retries with exponential fallback.
@@ -232,6 +233,22 @@ $(function() {
 </script>
 ```
 
+Enable the microphone and webcam/camera recording buttons:
+
+```html
+<script type="text/javascript">
+$(function() {
+	$('#thefiles').FancyFileUpload({
+		params : {
+			action : 'fileuploader'
+		},
+		recordaudio : true,
+		recordvideo : true
+	});
+});
+</script>
+```
+
 To remove the widget altogether and restore the original file input, call:  `$('#thefiles').FancyFileUpload('destroy');`
 
 Options
@@ -248,6 +265,10 @@ This plugin accepts the following options:
 * adjustprecision - A boolean indicating whether or not to adjust the final precision when displaying file sizes to the user (Default is true).
 * retries - An integer containing the number of retries to perform before giving up (Default is 5).
 * retrydelay - An integer containing the base delay, in milliseconds, to apply between retries (Default is 500).  Note that the delay is multiplied by 2 for exponential fallback.
+* recordaudio - A boolean indicating whether or not to display a toolbar button with a microphone icon for recording audio directly via the web browser (Default is false).
+* audiosettings - An object containing valid MediaRecorder options (Default is an empty object).
+* recordvideo - A boolean indicating whether or not to display a toolbar button with a webcam icon for recording video directly via the web browser (Default is false).
+* videosettings - An object containing valid MediaRecorder options (Default is an empty object).
 * preinit - A valid callback function that is called during initialization to allow for last second changes to the settings.  Useful for altering `fileupload` options on the fly.  The callback function must accept one parameter - callback(settings).
 * added - A valid callback function that is called for each item after its UI has been added to the DOM.  The callback function must accept two parameters - callback(e, data).
 * showpreview - A valid callback function that is called after the preview dialog appears.  Useful for temporarily preventing unwanted UI interactions elsewhere.  The callback function must accept three parameters - callback(data, preview, previewclone).
