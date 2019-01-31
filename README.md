@@ -21,7 +21,7 @@ Features
 * Full keyboard navigation.
 * Client-side file naming.
 * Preview support for images, audio, and video.
-* Supports recording directly from a microphone or webcam/camera.
+* Supports recording video and audio directly from a webcam, microphone, and other media sources.
 * Chunked file upload support.
 * Lots of useful callbacks.
 * Automatic retries with exponential fallback.
