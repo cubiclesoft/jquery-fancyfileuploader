@@ -685,7 +685,7 @@
 							videobutton.addClass('ff_fileupload_recording');
 
 							// Display a preview box with just the video stream.
-							try { videorecpreview[0].src = URL.createObjectURL(stream); } catch { videorecpreview[0].srcObject = stream; }
+							try { videorecpreview[0].src = URL.createObjectURL(stream); } catch(e) { videorecpreview[0].srcObject = stream; }
 
 							videorecpreview.removeClass('ff_fileupload_hidden');
 						};
