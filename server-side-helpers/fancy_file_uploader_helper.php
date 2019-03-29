@@ -127,7 +127,7 @@
 
 					if ($pos !== false && $pos2 !== false && $pos < $pos2)
 					{
-						$str = FlexForms::FilenameSafe(rawurldecode(substr($str, $pos + 1, $pos2 - $pos - 1)));
+						$str = self::FilenameSafe(rawurldecode(substr($str, $pos + 1, $pos2 - $pos - 1)));
 
 						if ($str !== "")  return $str;
 					}
@@ -139,10 +139,10 @@
 
 		public static function GetFileStartPosition()
 		{
-			if (isset($_SERVER["HTTP_CONTENT_RANGE"]))
+			if (isset($_SERVER["HTTP_CONTENT_RANGE"]) || isset($_SERVER["HTTP_RANGE"]))
 			{
 				// Content-Range: bytes (*|integer-integer)/(*|integer-integer)
-				$vals = explode(" ", preg_replace('/\s+/', " ", str_replace(",", "", $_SERVER["HTTP_CONTENT_RANGE"])));
+				$vals = explode(" ", preg_replace('/\s+/', " ", str_replace(",", "", (isset($_SERVER["HTTP_CONTENT_RANGE"]) ? $_SERVER["HTTP_CONTENT_RANGE"] : $_SERVER["HTTP_RANGE"]))));
 				if (count($vals) === 2 && strtolower($vals[0]) === "bytes")
 				{
 					$vals = explode("/", trim($vals[1]));
