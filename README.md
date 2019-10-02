@@ -100,51 +100,18 @@ Fancy File Uploader works with most server-side languages.  For basic server-sid
 <?php
 	require_once "fancy_file_uploader_helper.php";
 
-	// Depending on your server, you might have to use $_POST instead of $_REQUEST.
-	if (isset($_REQUEST["fileuploader"]))
+	function ModifyUploadResult(&$result, $filename, $name, $ext, $fileinfo)
 	{
-		header("Content-Type: application/json");
-
-		$allowedexts = array(
-			"jpg" => true,
-			"png" => true,
-		);
-
-		$files = FancyFileUploaderHelper::NormalizeFiles("files");
-		if (!isset($files[0]))  $result = array("success" => false, "error" => "File data was submitted but is missing.", "errorcode" => "bad_input");
-		else if (!$files[0]["success"])  $result = $files[0];
-		else if (!isset($allowedexts[strtolower($files[0]["ext"])]))
-		{
-			$result = array(
-				"success" => false,
-				"error" => "Invalid file extension.  Must be '.jpg' or '.png'.",
-				"errorcode" => "invalid_file_ext"
-			);
-		}
-		else
-		{
-			// For chunked file uploads, get the current filename and starting position from the incoming headers.
-			$name = FancyFileUploaderHelper::GetChunkFilename();
-			if ($name !== false)
-			{
-				$startpos = FancyFileUploaderHelper::GetFileStartPosition();
-
-				// [Do stuff with the file chunk.]
-			}
-			else
-			{
-				// [Do stuff with the file here.]
-				// copy($files[0]["file"], __DIR__ . "/images/" . $id . "." . strtolower($files[0]["ext"]));
-			}
-
-			$result = array(
-				"success" => true
-			);
-		}
-
-		echo json_encode($result, JSON_UNESCAPED_SLASHES);
-		exit();
+		// Add more information to the result here as necessary (e.g. a URL to the file that a callback uses to link to or show the file).
 	}
+
+	$options = array(
+		"allowed_exts" => array("jpg", "png"),
+		"filename" => __DIR__ . "/images/" . $id . ".{ext}",
+//		"result_callback" => "ModifyUploadResult"
+	);
+
+	FancyFileUploaderHelper::HandleUpload("files", $options);
 ?>
 ```
 
