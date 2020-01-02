@@ -251,6 +251,19 @@ All callbacks have a `this` containing the jQuery object for the current UI tabl
 
 The default settings can be adjusted before creating any instances via `$.FancyFileUpload.defaults`.  The most common use-case is to apply a set of translation strings to `langmap`.
 
+Translations
+------------
+
+To translate this plugin to another language, open `jquery.fancy-fileupload.js` in a text editor and locate strings passed to the `Translate()` function.  Create a mapping between English and the target language:
+
+```js
+$.FancyFileUpload.defaults.langmap = {
+	'File is too large.  Maximum file size is {0}.': 'Translation goes here...'
+};
+```
+
+Some strings contain `{0}`, `{1}`, etc. which are placeholders for `FormatStr()` to fill in.
+
 Under the Hood
 --------------
 
