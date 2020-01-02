@@ -254,7 +254,7 @@ The default settings can be adjusted before creating any instances via `$.FancyF
 Translations
 ------------
 
-To translate this plugin to another language, open `jquery.fancy-fileupload.js` in a text editor and locate strings passed to the `Translate()` function.  Create a mapping between English and the target language:
+To translate this plugin to another language, open `jquery.fancy-fileupload.js` in a text editor and locate strings passed to the `Translate()` function.  In a new .js file, create a mapping between English and the target language:
 
 ```js
 $.FancyFileUpload.defaults.langmap = {
@@ -262,7 +262,7 @@ $.FancyFileUpload.defaults.langmap = {
 };
 ```
 
-Some strings contain `{0}`, `{1}`, etc. which are placeholders for `FormatStr()` to fill in.
+Some strings contain `{0}`, `{1}`, etc. which are placeholders for `FormatStr()` to fill in.  Load your .js file after loading `jquery.fancy-fileupload.js`.
 
 Under the Hood
 --------------
