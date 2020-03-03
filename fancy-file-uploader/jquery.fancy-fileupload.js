@@ -737,8 +737,12 @@
 			// Save necessary information in case the uploader is destroyed later.
 			$this.data('fancy-fileupload', {
 				'fileuploadwrap' : fileuploadwrap,
-				'form' : form
+				'form' : form,
+				'settings': settings
 			});
+
+			// Post-initialization callback.
+			if (settings.postinit)  settings.postinit.call($this);
 		});
 	}
 
@@ -757,6 +761,7 @@
 		'recordvideo' : false,
 		'videosettings' : {},
 		'preinit' : null,
+		'postinit' : null,
 		'added' : null,
 		'showpreview' : null,
 		'hidepreview' : null,

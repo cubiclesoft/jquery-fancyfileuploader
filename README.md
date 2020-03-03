@@ -218,6 +218,33 @@ $(function() {
 
 To remove the widget altogether and restore the original file input, call:  `$('#thefiles').FancyFileUpload('destroy');`
 
+In order to be able to remove the widget later, `data('fancy-fileupload')` is used to store information alongside the object.  Modifying various options after initial creation is possible but tricky.  Accessing these internal options is at your own, probably minimal, risk:
+
+* fileuploadwrap - A jQuery object pointing at the root of the DOM node of the main user interface.
+* form - A jQuery object pointing at the hidden form that is created during the initialization process.  When the user clicks the button to select files, the click transfers to the hidden file input field in the form.
+* settings - A reference to the settings object.
+
+Example usage to access the hidden file input element after creating it (e.g. to change its `accept` attribute):
+
+```html
+<script type="text/javascript">
+$('#thefiles').each(function() {
+	var $this = $(this);
+
+	// Find the associated file input.
+	var fileinput = $this.data('fancy-fileupload').form.find('input[type=file]');
+
+	// Do something with the file input.
+	fileinput.attr('accept', '.png; image/png');
+
+	$this.data('fancy-fileupload').settings.accept = ['png'];
+
+	// Can even alter the underlying jQuery File Uploader (e.g. inject a canvas PNG blob).
+	fileinput.fileupload('add', { files: [ new Blob(...) ] });
+});
+</script>
+```
+
 Options
 -------
 
@@ -237,6 +264,7 @@ This plugin accepts the following options:
 * recordvideo - A boolean indicating whether or not to display a toolbar button with a webcam icon for recording video directly via the web browser (Default is false).
 * videosettings - An object containing valid MediaRecorder options (Default is an empty object).
 * preinit - A valid callback function that is called during initialization to allow for last second changes to the settings.  Useful for altering `fileupload` options on the fly.  The callback function must accept one parameter - callback(settings).
+* postinit - A valid callback function that is called at the end of initialization of each instance.  The `this` is a jQuery object to the instance.  The callback function must accept zero parameters - callback().
 * added - A valid callback function that is called for each item after its UI has been added to the DOM.  The callback function must accept two parameters - callback(e, data).
 * showpreview - A valid callback function that is called after the preview dialog appears.  Useful for temporarily preventing unwanted UI interactions elsewhere.  The callback function must accept three parameters - callback(data, preview, previewclone).
 * hidepreview - A valid callback function that is called after the preview dialog disappears.  The callback function must accept three parameters - callback(data, preview, previewclone).
@@ -244,7 +272,7 @@ This plugin accepts the following options:
 * continueupload - A valid callback function that is called whenever progress is updated (default is every 100 milliseconds).  The callback function must accept three parameters - callback(e, data).  The callback may return false or call `data.abort()` to cancel the upload.
 * uploadcancelled - A valid callback function that is called whenever an upload has been cancelled.  The callback function must accept two parameters - callback(e, data).
 * uploadcompleted - A valid callback function that is called whenever an upload has successfully completed.  The callback function must accept two parameters - callback(e, data).
-* fileupload - An object containing [jQuery File Upload options](https://github.com/blueimp/jQuery-File-Upload/wiki/Options) (Default is an empty object).  The following options are immutable cannot be changed:  `singleFileUploads` (always true), `dropZone`, `add`, `progress`, `fail`, `done`, `chunksend`, and `chunkdone`.  The `dataType` option must be 'json' (the default) or 'jsonp' as the plugin depends on a valid JSON response for correct operation.
+* fileupload - An object containing [jQuery File Upload options](https://github.com/blueimp/jQuery-File-Upload/wiki/Options) (Default is an empty object).  The following options are immutable and cannot be changed (doing so will break this plugin):  `singleFileUploads` (always true), `dropZone`, `add`, `progress`, `fail`, `done`, `chunksend`, and `chunkdone`.  The `dataType` option must be 'json' (the default) or 'jsonp' as the plugin depends on a valid JSON response for correct operation.
 * langmap - An object containing translation strings.  Support exists for most of the user interface (Default is an empty object).
 
 All callbacks have a `this` containing the jQuery object for the current UI table row.  Use the jQuery `this.find(selector)` syntax to locate relevant UI elements.
