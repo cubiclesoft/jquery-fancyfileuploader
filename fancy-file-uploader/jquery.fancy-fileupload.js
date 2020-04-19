@@ -111,6 +111,8 @@
 				data.form.find('input[type=file]').fileupload('destroy');
 				data.form.remove();
 				data.fileuploadwrap.remove();
+
+				$this.removeData('fancy-fileupload');
 			}
 		});
 
