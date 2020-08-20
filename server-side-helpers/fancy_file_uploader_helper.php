@@ -1,6 +1,6 @@
 <?php
 	// Fancy File Uploader helper class.  Combines some useful functions from FlexForms and FlexForms Modules.
-	// (C) 2019 CubicleSoft.  All Rights Reserved.
+	// (C) 2020 CubicleSoft.  All Rights Reserved.
 
 	class FancyFileUploaderHelper
 	{
@@ -160,92 +160,75 @@
 
 		public static function HandleUpload($filekey, $options = array())
 		{
-			if (isset($_REQUEST["fileuploader"]) || isset($_POST["fileuploader"]))
+			if (!isset($_REQUEST["fileuploader"]) && !isset($_POST["fileuploader"]))  return false;
+
+			header("Content-Type: application/json");
+
+			if (isset($options["allowed_exts"]))
 			{
-				header("Content-Type: application/json");
+				$allowedexts = array();
 
-				if (isset($options["allowed_exts"]))
+				if (is_string($options["allowed_exts"]))  $options["allowed_exts"] = explode(",", $options["allowed_exts"]);
+
+				foreach ($options["allowed_exts"] as $ext)
 				{
-					$allowedexts = array();
-
-					if (is_string($options["allowed_exts"]))  $options["allowed_exts"] = explode(",", $options["allowed_exts"]);
-
-					foreach ($options["allowed_exts"] as $ext)
-					{
-						$ext = strtolower(trim(trim($ext), "."));
-						if ($ext !== "")  $allowedexts[$ext] = true;
-					}
+					$ext = strtolower(trim(trim($ext), "."));
+					if ($ext !== "")  $allowedexts[$ext] = true;
 				}
+			}
 
-				$files = self::NormalizeFiles($filekey);
-				if (!isset($files[0]))  $result = array("success" => false, "error" => self::FFTranslate("File data was submitted but is missing."), "errorcode" => "bad_input");
-				else if (!$files[0]["success"])  $result = $files[0];
-				else if (isset($options["allowed_exts"]) && !isset($allowedexts[strtolower($files[0]["ext"])]))
+			$files = self::NormalizeFiles($filekey);
+			if (!isset($files[0]))  $result = array("success" => false, "error" => self::FFTranslate("File data was submitted but is missing."), "errorcode" => "bad_input");
+			else if (!$files[0]["success"])  $result = $files[0];
+			else if (isset($options["allowed_exts"]) && !isset($allowedexts[strtolower($files[0]["ext"])]))
+			{
+				$result = array(
+					"success" => false,
+					"error" => self::FFTranslate("Invalid file extension.  Must be one of %s.", "'." . implode("', '.", array_keys($allowedexts)) . "'"),
+					"errorcode" => "invalid_file_ext"
+				);
+			}
+			else
+			{
+				// For chunked file uploads, get the current filename and starting position from the incoming headers.
+				$name = self::GetChunkFilename();
+				if ($name !== false)
 				{
-					$result = array(
-						"success" => false,
-						"error" => self::FFTranslate("Invalid file extension.  Must be one of %s.", "'." . implode("', '.", array_keys($allowedexts)) . "'"),
-						"errorcode" => "invalid_file_ext"
-					);
-				}
-				else
-				{
-					// For chunked file uploads, get the current filename and starting position from the incoming headers.
-					$name = self::GetChunkFilename();
-					if ($name !== false)
-					{
-						$startpos = self::GetFileStartPosition();
+					$startpos = self::GetFileStartPosition();
 
-						$name = substr($name, 0, -(strlen($files[0]["ext"]) + 1));
+					$name = substr($name, 0, -(strlen($files[0]["ext"]) + 1));
 
-						if (isset($options["filename_callback"]) && is_callable($options["filename_callback"]))  $filename = call_user_func_array($options["filename_callback"], array($name, strtolower($files[0]["ext"]), $files[0]));
-						else if (isset($options["filename"]))  $filename = str_replace(array("{name}", "{ext}"), array($name, strtolower($files[0]["ext"])), $options["filename"]);
-						else  $filename = false;
+					if (isset($options["filename_callback"]) && is_callable($options["filename_callback"]))  $filename = call_user_func_array($options["filename_callback"], array($name, strtolower($files[0]["ext"]), $files[0]));
+					else if (isset($options["filename"]))  $filename = str_replace(array("{name}", "{ext}"), array($name, strtolower($files[0]["ext"])), $options["filename"]);
+					else  $filename = false;
 
-						if (!is_string($filename))  $result = array("success" => false, "error" => self::FFTranslate("The server did not set a valid filename."), "errorcode" => "invalid_filename");
-						else
-						{
-							if (file_exists($filename) && $startpos === filesize($filename))  $fp = @fopen($filename, "ab");
-							else
-							{
-								$fp = @fopen($filename, ($startpos > 0 ? "r+b" : "wb"));
-								if ($fp !== false)  @fseek($fp, $startpos, SEEK_SET);
-							}
-
-							$fp2 = @fopen($files[0]["file"], "rb");
-
-							if ($fp === false)  $result = array("success" => false, "error" => self::FFTranslate("Unable to open a required file for writing."), "errorcode" => "open_failed", "info" => $filename);
-							else if ($fp2 === false)  $result = array("success" => false, "error" => self::FFTranslate("Unable to open a required file for reading."), "errorcode" => "open_failed", "info" => $files[0]["file"]);
-							else
-							{
-								do
-								{
-									$data2 = @fread($fp2, 10485760);
-									if ($data2 === false)  $data2 = "";
-									@fwrite($fp, $data2);
-								} while ($data2 !== "");
-
-								fclose($fp2);
-								fclose($fp);
-
-								$result = array(
-									"success" => true
-								);
-							}
-						}
-					}
+					if (!is_string($filename))  $result = array("success" => false, "error" => self::FFTranslate("The server did not set a valid filename."), "errorcode" => "invalid_filename");
+					else if (isset($options["limit"]) && $options["limit"] > -1 && $startpos + filesize($files[0]["file"]) > $options["limit"])  $result = array("success" => false, "error" => self::FFTranslate("The server file size limit was exceeded."), "errorcode" => "file_too_large");
 					else
 					{
-						$name = substr($files[0]["name"], 0, -(strlen($files[0]["ext"]) + 1));
-
-						if (isset($options["filename_callback"]) && is_callable($options["filename_callback"]))  $filename = call_user_func_array($options["filename_callback"], array($name, strtolower($files[0]["ext"]), $files[0]));
-						else if (isset($options["filename"]))  $filename = str_replace(array("{name}", "{ext}"), array($name, strtolower($files[0]["ext"])), $options["filename"]);
-						else  $filename = false;
-
-						if (!is_string($filename))  $result = array("success" => false, "error" => self::FFTranslate("The server did not set a valid filename."), "errorcode" => "invalid_filename");
+						if (file_exists($filename) && $startpos === filesize($filename))  $fp = @fopen($filename, "ab");
 						else
 						{
-							@copy($files[0]["file"], $filename);
+							$fp = @fopen($filename, ($startpos > 0 && file_exists($filename) ? "r+b" : "wb"));
+							if ($fp !== false)  @fseek($fp, $startpos, SEEK_SET);
+						}
+
+						$fp2 = @fopen($files[0]["file"], "rb");
+
+						if ($fp === false)  $result = array("success" => false, "error" => self::FFTranslate("Unable to open a required file for writing."), "errorcode" => "open_failed", "info" => $filename);
+						else if ($fp2 === false)  $result = array("success" => false, "error" => self::FFTranslate("Unable to open a required file for reading."), "errorcode" => "open_failed", "info" => $files[0]["file"]);
+						else
+						{
+							do
+							{
+								$data2 = @fread($fp2, 1048576);
+								if ($data2 == "")  break;
+
+								@fwrite($fp, $data2);
+							} while (1);
+
+							fclose($fp2);
+							fclose($fp);
 
 							$result = array(
 								"success" => true
@@ -253,12 +236,33 @@
 						}
 					}
 				}
+				else
+				{
+					$name = substr($files[0]["name"], 0, -(strlen($files[0]["ext"]) + 1));
 
-				if ($result["success"] && isset($options["result_callback"]) && is_callable($options["result_callback"]))  call_user_func_array($options["result_callback"], array(&$result, $filename, $name, strtolower($files[0]["ext"]), $files[0]));
+					if (isset($options["filename_callback"]) && is_callable($options["filename_callback"]))  $filename = call_user_func_array($options["filename_callback"], array($name, strtolower($files[0]["ext"]), $files[0]));
+					else if (isset($options["filename"]))  $filename = str_replace(array("{name}", "{ext}"), array($name, strtolower($files[0]["ext"])), $options["filename"]);
+					else  $filename = false;
 
-				echo json_encode($result, JSON_UNESCAPED_SLASHES);
-				exit();
+					if (!is_string($filename))  $result = array("success" => false, "error" => self::FFTranslate("The server did not set a valid filename."), "errorcode" => "invalid_filename");
+					else if (isset($options["limit"]) && $options["limit"] > -1 && filesize($files[0]["file"]) > $options["limit"])  $result = array("success" => false, "error" => self::FFTranslate("The server file size limit was exceeded."), "errorcode" => "file_too_large");
+					else
+					{
+						@copy($files[0]["file"], $filename);
+
+						$result = array(
+							"success" => true
+						);
+					}
+				}
 			}
+
+			if ($result["success"] && isset($options["result_callback"]) && is_callable($options["result_callback"]))  call_user_func_array($options["result_callback"], array(&$result, $filename, $name, strtolower($files[0]["ext"]), $files[0], (isset($options["result_callback_opts"]) ? $options["result_callback_opts"] : false)));
+
+			if (isset($options["return_result"]) && $options["return_result"])  return $result;
+
+			echo json_encode($result, JSON_UNESCAPED_SLASHES);
+			exit();
 		}
 
 		public static function FFTranslate()
