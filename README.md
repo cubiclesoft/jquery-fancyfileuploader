@@ -11,7 +11,7 @@ Also available in [FlexForms Modules](https://github.com/cubiclesoft/php-flexfor
 
 Also used by [Cool File Transfer](https://github.com/cubiclesoft/php-cool-file-transfer).
 
-[![Donate](https://cubiclesoft.com/res/donate-shield.png)](https://cubiclesoft.com/donate/)
+[![Donate](https://cubiclesoft.com/res/donate-shield.png)](https://cubiclesoft.com/donate/) [![Discord](https://img.shields.io/discord/777282089980526602?label=chat&logo=discord)](https://cubiclesoft.com/product-support/github/)
 
 Features
 --------
