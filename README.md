@@ -117,7 +117,7 @@ Fancy File Uploader works with most server-side languages.  For basic server-sid
 
 The class also contains `FancyFileUploaderHelper::GetMaxUploadFileSize()`, which determines the maximum allowed file/chunk upload size that PHP allows.
 
-When using `FancyFileUploaderHelper::HandleUpload()`, be sure to pass `fileuploader` as a parameter to the server so the class can handle the request instead of ignoring it.  For example:
+When using `FancyFileUploaderHelper::HandleUpload()`, be sure to pass `fileuploader` as a parameter to the server so the FancyFileUploaderHelper class will handle the request instead of ignoring it.  For example:
 
 ```html
 <script type="text/javascript">
