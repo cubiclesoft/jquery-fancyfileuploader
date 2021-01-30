@@ -30,6 +30,15 @@ Features
 * Designed for relatively painless integration into your project.
 * Sits on GitHub for all of that pull request and issue tracker goodness to easily submit changes and ideas respectively.
 
+Alternate Options
+-----------------
+
+jQuery Fancy File Uploader just handles uploading of files in an environment where you plan to apply strict storage controls.  However, if you need something even fancier, here are a couple of options:
+
+If you need a general-purpose hierarchical file management and tabbed file editor solution that can be readily embedded into existing software products, check out the open source CubicleSoft [PHP File Manager and Editor](https://github.com/cubiclesoft/php-filemanager) application.
+
+If you need something even more powerful, flexible, and highly customizable with hierarchical directory and file structures, check out the open source CubicleSoft [Folder and File Explorer](https://github.com/cubiclesoft/js-fileexplorer) zero-dependencies Javascript widget.
+
 Getting Started
 ---------------
 
