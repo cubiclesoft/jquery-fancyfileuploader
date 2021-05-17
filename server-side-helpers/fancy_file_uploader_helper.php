@@ -38,14 +38,14 @@
 						{
 							switch ($currfiles["error"][$x])
 							{
-								case 1:  $msg = "The uploaded file exceeds the 'upload_max_filesize' directive in 'php.ini'.";  $code = "upload_err_ini_size";  break;
-								case 2:  $msg = "The uploaded file exceeds the 'MAX_FILE_SIZE' directive that was specified in the submitted form.";  $code = "upload_err_form_size";  break;
-								case 3:  $msg = "The uploaded file was only partially uploaded.";  $code = "upload_err_partial";  break;
-								case 4:  $msg = "No file was uploaded.";  $code = "upload_err_no_file";  break;
-								case 6:  $msg = "The configured temporary folder on the server is missing.";  $code = "upload_err_no_tmp_dir";  break;
-								case 7:  $msg = "Unable to write the temporary file to disk.  The server is out of disk space, incorrectly configured, or experiencing hardware issues.";  $code = "upload_err_cant_write";  break;
-								case 8:  $msg = "A PHP extension stopped the upload.";  $code = "upload_err_extension";  break;
-								default:  $msg = "An unknown error occurred.";  $code = "upload_err_unknown";  break;
+								case 1:  $msg = "UPLOAD_ERR_INI_SIZE";   $code = "upload_err_ini_size";   break;
+								case 2:  $msg = "UPLOAD_ERR_FORM_SIZE";  $code = "upload_err_form_size";  break;
+								case 3:  $msg = "UPLOAD_ERR_PARTIAL";    $code = "upload_err_partial";    break;
+								case 4:  $msg = "UPLOAD_ERR_NO_FILE";    $code = "upload_err_no_file";    break;
+								case 6:  $msg = "UPLOAD_ERR_NO_TMP_DIR"; $code = "upload_err_no_tmp_dir"; break;
+								case 7:  $msg = "UPLOAD_ERR_CANT_WRITE"; $code = "upload_err_cant_write"; break;
+								case 8:  $msg = "UPLOAD_ERR_EXTENSION";  $code = "upload_err_extension";  break;
+								default: $msg = "UPLOAD_ERR_UNKNOWN";    $code = "upload_err_unknown";    break;
 							}
 
 							$entry = array(
@@ -58,7 +58,7 @@
 						{
 							$entry = array(
 								"success" => false,
-								"error" => self::FFTranslate("The specified input filename was not uploaded to this server."),
+								"error" => self::FFTranslate("INVALID_INPUT_FILENAME"),
 								"errorcode" => "invalid_input_filename"
 							);
 						}
@@ -179,13 +179,13 @@
 			}
 
 			$files = self::NormalizeFiles($filekey);
-			if (!isset($files[0]))  $result = array("success" => false, "error" => self::FFTranslate("File data was submitted but is missing."), "errorcode" => "bad_input");
+			if (!isset($files[0]))  $result = array("success" => false, "error" => self::FFTranslate("BAD_INPUT"), "errorcode" => "bad_input");
 			else if (!$files[0]["success"])  $result = $files[0];
 			else if (isset($options["allowed_exts"]) && !isset($allowedexts[strtolower($files[0]["ext"])]))
 			{
 				$result = array(
 					"success" => false,
-					"error" => self::FFTranslate("Invalid file extension.  Must be one of %s.", "'." . implode("', '.", array_keys($allowedexts)) . "'"),
+					"error" => self::FFTranslate("INVALID_FILE_EXT", "'." . implode("', '.", array_keys($allowedexts)) . "'"),
 					"errorcode" => "invalid_file_ext"
 				);
 			}
@@ -203,8 +203,8 @@
 					else if (isset($options["filename"]))  $filename = str_replace(array("{name}", "{ext}"), array($name, strtolower($files[0]["ext"])), $options["filename"]);
 					else  $filename = false;
 
-					if (!is_string($filename))  $result = array("success" => false, "error" => self::FFTranslate("The server did not set a valid filename."), "errorcode" => "invalid_filename");
-					else if (isset($options["limit"]) && $options["limit"] > -1 && $startpos + filesize($files[0]["file"]) > $options["limit"])  $result = array("success" => false, "error" => self::FFTranslate("The server file size limit was exceeded."), "errorcode" => "file_too_large");
+					if (!is_string($filename))  $result = array("success" => false, "error" => self::FFTranslate("INVALID_FILENAME"), "errorcode" => "invalid_filename");
+					else if (isset($options["limit"]) && $options["limit"] > -1 && $startpos + filesize($files[0]["file"]) > $options["limit"])  $result = array("success" => false, "error" => self::FFTranslate("FILE_TOO_LARGE"), "errorcode" => "file_too_large");
 					else
 					{
 						if (file_exists($filename) && $startpos === filesize($filename))  $fp = @fopen($filename, "ab");
@@ -216,8 +216,8 @@
 
 						$fp2 = @fopen($files[0]["file"], "rb");
 
-						if ($fp === false)  $result = array("success" => false, "error" => self::FFTranslate("Unable to open a required file for writing."), "errorcode" => "open_failed", "info" => $filename);
-						else if ($fp2 === false)  $result = array("success" => false, "error" => self::FFTranslate("Unable to open a required file for reading."), "errorcode" => "open_failed", "info" => $files[0]["file"]);
+						if ($fp === false)  $result = array("success" => false, "error" => self::FFTranslate("OPEN_WRITE_FAILED"), "errorcode" => "open_failed", "info" => $filename);
+						else if ($fp2 === false)  $result = array("success" => false, "error" => self::FFTranslate("OPEN_READ_FAILED"), "errorcode" => "open_failed", "info" => $files[0]["file"]);
 						else
 						{
 							do
@@ -245,8 +245,8 @@
 					else if (isset($options["filename"]))  $filename = str_replace(array("{name}", "{ext}"), array($name, strtolower($files[0]["ext"])), $options["filename"]);
 					else  $filename = false;
 
-					if (!is_string($filename))  $result = array("success" => false, "error" => self::FFTranslate("The server did not set a valid filename."), "errorcode" => "invalid_filename");
-					else if (isset($options["limit"]) && $options["limit"] > -1 && filesize($files[0]["file"]) > $options["limit"])  $result = array("success" => false, "error" => self::FFTranslate("The server file size limit was exceeded."), "errorcode" => "file_too_large");
+					if (!is_string($filename))  $result = array("success" => false, "error" => self::FFTranslate("INVALID_FILENAME"), "errorcode" => "invalid_filename");
+					else if (isset($options["limit"]) && $options["limit"] > -1 && filesize($files[0]["file"]) > $options["limit"])  $result = array("success" => false, "error" => self::FFTranslate("FILE_TOO_LARGE"), "errorcode" => "file_too_large");
 					else
 					{
 						@copy($files[0]["file"], $filename);
@@ -271,6 +271,54 @@
 			$args = func_get_args();
 			if (!count($args))  return "";
 
+			// Define default translations
+			$translations = [];
+			$translations['LANG']					= "English";
+			$translations['UPLOAD_ERR_INI_SIZE']	= "The uploaded file exceeds the 'upload_max_filesize' directive in 'php.ini'.";
+			$translations['UPLOAD_ERR_FORM_SIZE']	= "The uploaded file exceeds the 'MAX_FILE_SIZE' directive that was specified in the submitted form.";
+			$translations['UPLOAD_ERR_PARTIAL']		= "The uploaded file was only partially uploaded.";
+			$translations['UPLOAD_ERR_NO_FILE']		= "No file was uploaded.";
+			$translations['UPLOAD_ERR_NO_TMP_DIR']	= "The configured temporary folder on the server is missing.";
+			$translations['UPLOAD_ERR_CANT_WRITE']	= "Unable to write the temporary file to disk.  The server is out of disk space, incorrectly configured, or experiencing hardware issues.";
+			$translations['UPLOAD_ERR_EXTENSION']	= "A PHP extension stopped the upload.";
+			$translations['UPLOAD_ERR_UNKNOWN']		= "An unknown error occurred.";
+			$translations['INVALID_INPUT_FILENAME']	= "The specified input filename was not uploaded to this server.";
+			$translations['BAD_INPUT']				= "File data was submitted but is missing.";
+			$translations['INVALID_FILE_EXT']		= "Invalid file extension.  Must be one of %s.";
+			$translations['INVALID_FILENAME']		= "The server did not set a valid filename.";
+			$translations['FILE_TOO_LARGE']			= "The server file size limit was exceeded.";
+			$translations['OPEN_WRITE_FAILED']		= "Unable to open a required file for writing.";
+			$translations['OPEN_READ_FAILED']		= "Unable to open a required file for reading.";
+
+			// If a translate function is defined as below use it...
+			// define("CS_TRANSLATE_FUNC", "MyTranslateFunction");
+			if (defined("CS_TRANSLATE_FUNC") && function_exists(CS_TRANSLATE_FUNC))
+			{
+				// CS_TRANSLATE_FUNC is defined and exists, check for new format.
+				// A try to translate "LANG" should not give back "LANG" in new format mode.
+				if ((call_user_func_array(CS_TRANSLATE_FUNC, array("LANG")) === "LANG"))
+				{
+					// CS_TRANSLATE_FUNC function exists but seems to use 
+					// the old format. To use the new format, a translation 
+					// variable LANG must have a content different from LANG.
+					// To keep backward compatibility I convert the strings in 
+					// $args back from variable to the old text format before proceeding...
+					foreach ($args as $key => $value)
+					{
+						$args = str_replace("$value",$translations["$value"],$args);
+					}
+				}
+			}
+			else
+			{
+				// CS_TRANSLATE_FUNC function doesn't exists.
+				// To keep backward compatibility I convert the strings in 
+				// $args back from variable to the old text format before proceeding...
+				foreach ($args as $key => $value)
+				{
+					$args = str_replace("$value",$translations["$value"],$args);
+				}
+			}
 			return call_user_func_array((defined("CS_TRANSLATE_FUNC") && function_exists(CS_TRANSLATE_FUNC) ? CS_TRANSLATE_FUNC : "sprintf"), $args);
 		}
 	}
