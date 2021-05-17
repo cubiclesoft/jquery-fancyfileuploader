@@ -137,6 +137,56 @@
 
 		// Some useful functions.
 		var Translate = function(str) {
+			// Default langmap - DO NOT CHANGE existing strings to keep backwards compatibility!
+			var default_langmap = {
+			 'START_UPLOADING':'Start uploading',
+			 'STARTING_UPLOAD':'Starting upload...',
+			 'UPLOAD_COMPLETED':'Upload completed',
+			 'UPLOAD_STILL_IN_PROGRESS':'There is a file upload still in progress.  Leaving the page will cancel the upload.\n\nAre you sure you want to leave this page?',
+			 'FILE_IN_QUEUE_BUT_NOT_UPLOADED':'There is a file that was added to the queue but the upload has not been started.  Leaving the page will clear the queue and not upload the file.\n\nAre you sure you want to leave this page?',
+			 'CANCEL_UPLOAD_AND_REMOVE_FILE':'Cancel upload and remove from list',
+			 'FILE_IS_CURRENTLY_UPLOADED':'This file is currently being uploaded.\n\nStop the upload and remove the file from the list?',
+			 'FILE_IS_WAITING_TO_START':'This file is waiting to start.\n\nCancel the operation and remove the file from the list?',
+			 'PREVIEW':'Preview',
+			 'NO_PREVIEW':'No preview available',
+			 'INVALID_EXTENSION':'Invalid file extension.',
+			 'FILE_TOO_LARGE':'File is too large.  Maximum file size is {0}.',
+			 'REMOVE_FROM_LIST':'Remove from list',
+			 'X_OF_Y_PERCENT':'{0} of {1} | {2}%',
+			 'NET_ERROR':'{0} | Network error, retrying in a moment... ({1})',
+			 'UPLOAD_CANCELLED':'The upload was cancelled.',
+			 'UPLOAD_FAILED_DETAILS':'The upload failed.  {0} ({1})',
+			 'UPLOAD_FAILED':'The upload failed.',
+			 'SERVER_UPLOAD_FAIL':'The server indicated that the upload was not successful.  No additional information available.',
+			 'BROWSE_DRAGNDROP_PASTE':'Browse, drag-and-drop, or paste files to upload',
+			 'REC_AUDIO':'Record audio using a microphone',
+			 'REC_AUDIO_DETAIL':'Audio recording - {0}.mp3',
+			 'UNABLE_TO_REC_AUDIO':'Unable to record audio.  Either a microphone was not found or access was denied.',
+			 'REC_VIDEO':'Record video using a camera',
+			 'REC_VIDEO_DETAIL':'Video recording - {0}.mp4',
+			 'UNABLE_TO_REC_VIDEO':'Unable to record video.  Either a camera was not found or access was denied.'
+			}
+			if ( typeof settings.langmap['LANG'] === "string" ) {
+				// langmap in new format is given as option! Use it.
+			}
+			else {
+				// No langmap available in the NEW format.
+				if ( Object.keys(settings.langmap).length > 1 )
+				{
+					// A langmap seems available but not in NEW format.
+					// For backwards compatibility changing strings back
+					// from variables to text using the default_langmap above
+					var str = (default_langmap[str]) ? default_langmap[str] : str;
+				}
+				else
+				{	
+					// No langmap available at all
+					// using the default_langmap to translate the variables
+					// in the source code to readable text
+					console.log("No langmap available at all.");
+					settings.langmap = default_langmap;
+				}
+			}
 			return (settings.langmap[str] ? settings.langmap[str] : str);
 		};
 
@@ -154,8 +204,8 @@
 				queued.removeClass('ff_fileupload_bounce');
 				setTimeout(function() { queued.addClass('ff_fileupload_bounce') }, 250);
 
-				if (active.length)  return Translate('There is a file upload still in progress.  Leaving the page will cancel the upload.\n\nAre you sure you want to leave this page?');
-				if (queued.length)  return Translate('There is a file that was added to the queue but the upload has not been started.  Leaving the page will clear the queue and not upload the file.\n\nAre you sure you want to leave this page?');
+				if (active.length)  return Translate('UPLOAD_STILL_IN_PROGRESS');
+				if (queued.length)  return Translate('FILE_IN_QUEUE_BUT_NOT_UPLOADED');
 			}
 		});
 
@@ -208,13 +258,13 @@
 				inforow.find('.ff_fileupload_buttoninfo').addClass('ff_fileupload_hidden');
 
 				// Set the status.
-				inforow.find('.ff_fileupload_fileinfo').text(data.ff_info.displayfilesize + ' | ' + Translate('Starting upload...'));
+				inforow.find('.ff_fileupload_fileinfo').text(data.ff_info.displayfilesize + ' | ' + Translate('STARTING_UPLOAD'));
 
 				// Display progress bar.
 				inforow.find('.ff_fileupload_progress_background').removeClass('ff_fileupload_hidden');
 
 				// Alter remove buttons.
-				inforow.find('button.ff_fileupload_remove_file').attr('aria-label', Translate('Cancel upload and remove from list'));
+				inforow.find('button.ff_fileupload_remove_file').attr('aria-label', Translate('CANCEL_UPLOAD_AND_REMOVE_FILE'));
 
 				// Begin the actual upload.
 				inforow.removeClass('ff_fileupload_queued');
@@ -235,7 +285,7 @@
 
 				if (inforow.hasClass('ff_fileupload_uploading'))
 				{
-					if (!confirm(Translate('This file is currently being uploaded.\n\nStop the upload and remove the file from the list?')))  return;
+					if (!confirm(Translate('FILE_IS_CURRENTLY_UPLOADED')))  return;
 
 					data.ff_info.removewidget = true;
 					data.abort();
@@ -244,7 +294,7 @@
 				{
 					if (inforow.hasClass('ff_fileupload_starting'))
 					{
-						if (!confirm(Translate('This file is waiting to start.\n\nCancel the operation and remove the file from the list?')))  return;
+						if (!confirm(Translate('FILE_IS_WAITING_TO_START')))  return;
 
 						if (settings.uploadcancelled)  settings.uploadcancelled.call(data.ff_info.inforow, e, data);
 					}
@@ -306,7 +356,7 @@
 
 			if (haspreview)
 			{
-				inforow.find('.ff_fileupload_preview_image').addClass('ff_fileupload_preview_image_has_preview').attr('aria-label', Translate('Preview')).click(function(e) {
+				inforow.find('.ff_fileupload_preview_image').addClass('ff_fileupload_preview_image_has_preview').attr('aria-label', Translate('PREVIEW')).click(function(e) {
 					e.preventDefault();
 
 					this.blur();
@@ -315,7 +365,7 @@
 			}
 			else
 			{
-				inforow.find('.ff_fileupload_preview_image').prop('disabled', true).attr('aria-label', Translate('No preview available')).click(function(e) {
+				inforow.find('.ff_fileupload_preview_image').prop('disabled', true).attr('aria-label', Translate('NO_PREVIEW')).click(function(e) {
 					e.preventDefault();
 				});
 			}
@@ -331,10 +381,10 @@
 					if (settings.accept[x] === fileext || settings.accept[x] === data.files[0].type)  found = true;
 				}
 
-				if (!found)  data.ff_info.errors.push(Translate('Invalid file extension.'));
+				if (!found)  data.ff_info.errors.push(Translate('INVALID_EXTENSION'));
 			}
 
-			if (settings.maxfilesize > -1 && data.files[0].size > settings.maxfilesize)  data.ff_info.errors.push(FormatStr(Translate('File is too large.  Maximum file size is {0}.'), GetDisplayFilesize(settings.maxfilesize, settings.adjustprecision, settings.displayunits)));
+			if (settings.maxfilesize > -1 && data.files[0].size > settings.maxfilesize)  data.ff_info.errors.push(FormatStr(Translate('FILE_TOO_LARGE'), GetDisplayFilesize(settings.maxfilesize, settings.adjustprecision, settings.displayunits)));
 
 			// Filename text field/display.
 			if (settings.edit && !data.ff_info.errors.length)
@@ -358,14 +408,14 @@
 			// Action buttons.
 			if (!data.ff_info.errors.length)
 			{
-				inforow.find('.ff_fileupload_actions').append($('<button>').addClass('ff_fileupload_start_upload').attr('type', 'button').attr('aria-label', Translate('Start uploading')).click(StartUpload));
-				inforow.find('.ff_fileupload_actions_mobile').append($('<button>').addClass('ff_fileupload_start_upload').attr('type', 'button').attr('aria-label', Translate('Start uploading')).click(StartUpload));
+				inforow.find('.ff_fileupload_actions').append($('<button>').addClass('ff_fileupload_start_upload').attr('type', 'button').attr('aria-label', Translate('START_UPLOADING')).click(StartUpload));
+				inforow.find('.ff_fileupload_actions_mobile').append($('<button>').addClass('ff_fileupload_start_upload').attr('type', 'button').attr('aria-label', Translate('START_UPLOADING')).click(StartUpload));
 
 				inforow.addClass('ff_fileupload_queued');
 			}
 
-			inforow.find('.ff_fileupload_actions').append($('<button>').addClass('ff_fileupload_remove_file').attr('type', 'button').attr('aria-label', Translate('Remove from list')).click(RemoveFile));
-			inforow.find('.ff_fileupload_actions_mobile').append($('<button>').addClass('ff_fileupload_remove_file').attr('type', 'button').attr('aria-label', Translate('Remove from list')).click(RemoveFile));
+			inforow.find('.ff_fileupload_actions').append($('<button>').addClass('ff_fileupload_remove_file').attr('type', 'button').attr('aria-label', Translate('REMOVE_FROM_LIST')).click(RemoveFile));
+			inforow.find('.ff_fileupload_actions_mobile').append($('<button>').addClass('ff_fileupload_remove_file').attr('type', 'button').attr('aria-label', Translate('REMOVE_FROM_LIST')).click(RemoveFile));
 
 			// Handle button hover.
 			InitShowAriaLabelInfo(inforow);
@@ -382,7 +432,7 @@
 		var UploadProgress = function(e, data) {
 			var progress = (data.total < 1 ? 0 : data.loaded / data.total * 100);
 
-			data.ff_info.fileinfo.text(FormatStr(Translate('{0} of {1} | {2}%'), GetDisplayFilesize(data.loaded, settings.adjustprecision, settings.displayunits), data.ff_info.displayfilesize, progress.toFixed(0)));
+			data.ff_info.fileinfo.text(FormatStr(Translate('X_OF_Y_PERCENT'), GetDisplayFilesize(data.loaded, settings.adjustprecision, settings.displayunits), data.ff_info.displayfilesize, progress.toFixed(0)));
 			data.ff_info.progressbar.css('width', progress + '%');
 
 			if (settings.continueupload && settings.continueupload.call(data.ff_info.inforow, e, data) === false)  data.abort();
@@ -398,7 +448,7 @@
 
 			if (data.errorThrown !== 'abort' && data.errorThrown !== 'failed_with_msg' && data.uploadedBytes < data.files[0].size && data.ff_info.retries < settings.retries)
 			{
-				data.ff_info.fileinfo.text(FormatStr(Translate('{0} | Network error, retrying in a moment... ({1})'), data.ff_info.displayfilesize, data.errorThrown));
+				data.ff_info.fileinfo.text(FormatStr(Translate('NET_ERROR'), data.ff_info.displayfilesize, data.errorThrown));
 
 				data.ff_info.inforow.removeClass('ff_fileupload_uploading');
 				data.ff_info.inforow.addClass('ff_fileupload_starting');
@@ -429,23 +479,23 @@
 			else
 			{
 				// Set the error info.
-				if (data.errorThrown === 'abort')  data.ff_info.errors.push(Translate('The upload was cancelled.'));
-				else if (data.errorThrown === 'failed_with_msg')  data.ff_info.errors.push(FormatStr(Translate('The upload failed.  {0} ({1})'), EscapeHTML(data.result.error), EscapeHTML(data.result.errorcode)));
-				else  data.ff_info.errors.push(Translate('The upload failed.'));
+				if (data.errorThrown === 'abort')  data.ff_info.errors.push(Translate('UPLOAD_CANCELLED'));
+				else if (data.errorThrown === 'failed_with_msg')  data.ff_info.errors.push(FormatStr(Translate('UPLOAD_FAILED_DETAILS'), EscapeHTML(data.result.error), EscapeHTML(data.result.errorcode)));
+				else  data.ff_info.errors.push(Translate('UPLOAD_FAILED'));
 				data.ff_info.inforow.find('.ff_fileupload_errors').html(data.ff_info.errors.join('<br>')).removeClass('ff_fileupload_hidden');
 
 				// Hide the progress bar.
 				data.ff_info.inforow.find('.ff_fileupload_progress_background').addClass('ff_fileupload_hidden');
 
 				// Alter remove buttons.
-				data.ff_info.inforow.find('button.ff_fileupload_remove_file').attr('aria-label', Translate('Remove from list'));
+				data.ff_info.inforow.find('button.ff_fileupload_remove_file').attr('aria-label', Translate('REMOVE_FROM_LIST'));
 			}
 		};
 
 		var UploadDone = function(e, data) {
 			if (!data.result.success)
 			{
-				if (typeof(data.result.error) !== 'string')  data.result.error = Translate('The server indicated that the upload was not successful.  No additional information available.');
+				if (typeof(data.result.error) !== 'string')  data.result.error = Translate('SERVER_UPLOAD_FAIL');
 				if (typeof(data.result.errorcode) !== 'string')  data.result.errorcode = 'server_response';
 
 				data.errorThrown = 'failed_with_msg';
@@ -469,13 +519,13 @@
 			else
 			{
 				// Set the status.
-				data.ff_info.inforow.find('.ff_fileupload_fileinfo').text(data.ff_info.displayfilesize + ' | ' + Translate('Upload completed'));
+				data.ff_info.inforow.find('.ff_fileupload_fileinfo').text(data.ff_info.displayfilesize + ' | ' + Translate('UPLOAD_COMPLETED'));
 
 				// Hide the progress bar.
 				data.ff_info.inforow.find('.ff_fileupload_progress_background').addClass('ff_fileupload_hidden');
 
 				// Alter remove buttons.
-				data.ff_info.inforow.find('button.ff_fileupload_remove_file').attr('aria-label', Translate('Remove from list'));
+				data.ff_info.inforow.find('button.ff_fileupload_remove_file').attr('aria-label', Translate('REMOVE_FROM_LIST'));
 			}
 		};
 
@@ -496,7 +546,7 @@
 				{
 					data.result = data.ff_info.lastresult;
 
-					if (typeof(data.ff_info.lastresult.error) !== 'string')  data.ff_info.lastresult.error = Translate('The server indicated that the upload was not successful.  No additional information available.');
+					if (typeof(data.ff_info.lastresult.error) !== 'string')  data.ff_info.lastresult.error = Translate('SERVER_UPLOAD_FAIL');
 					if (typeof(data.ff_info.lastresult.errorcode) !== 'string')  data.ff_info.lastresult.errorcode = 'server_response';
 
 					data.ff_info.removewidget = false;
@@ -583,7 +633,7 @@
 
 			// Insert a new dropzone.  Using a button allows for standard keyboard and mouse navigation to the element.  The wrapper is for paste support.
 			var dropzonewrap = $('<div>').addClass('ff_fileupload_dropzone_wrap');
-			var dropzone = $('<button>').addClass('ff_fileupload_dropzone').attr('type', 'button').attr('aria-label', Translate('Browse, drag-and-drop, or paste files to upload'));
+			var dropzone = $('<button>').addClass('ff_fileupload_dropzone').attr('type', 'button').attr('aria-label', Translate('BROWSE_DRAGNDROP_PASTE'));
 			dropzonewrap.append(dropzone);
 			fileuploadwrap.append(dropzonewrap);
 			dropzone.on('click.fancy_fileupload', function(e) {
@@ -599,7 +649,7 @@
 			// Record audio.
 			if (settings.recordaudio && navigator.mediaDevices && window.MediaRecorder)
 			{
-				var audiobutton = $('<button>').addClass('ff_fileupload_dropzone_tool').addClass('ff_fileupload_recordaudio').attr('type', 'button').attr('aria-label', Translate('Record audio using a microphone'));
+				var audiobutton = $('<button>').addClass('ff_fileupload_dropzone_tool').addClass('ff_fileupload_recordaudio').attr('type', 'button').attr('aria-label', Translate('REC_AUDIO'));
 				dropzonetools.append(audiobutton);
 
 				var audiorec = null;
@@ -620,7 +670,7 @@
 									var blob = new Blob(audiochunks, { type: 'audio/mp3' });
 									blob.lastModifiedDate = new Date();
 									blob.lastModified = Math.floor(blob.lastModifiedDate.getTime() / 1000);
-									blob.name = FormatStr(Translate('Audio recording - {0}.mp3'), blob.lastModifiedDate.toLocaleString());
+									blob.name = FormatStr(Translate('REC_AUDIO_DETAIL'), blob.lastModifiedDate.toLocaleString());
 
 									fileinput.fileupload('add', { files: [blob] });
 
@@ -637,7 +687,7 @@
 							audiorec.start();
 							audiobutton.addClass('ff_fileupload_recording');
 						}).catch(function(e) {
-							alert(Translate('Unable to record audio.  Either a microphone was not found or access was denied.'));
+							alert(Translate('UNABLE_TO_REC_AUDIO'));
 						});
 					}
 					else
@@ -650,7 +700,7 @@
 			// Record video.
 			if (settings.recordvideo && navigator.mediaDevices && window.MediaRecorder)
 			{
-				var videobutton = $('<button>').addClass('ff_fileupload_dropzone_tool').addClass('ff_fileupload_recordvideo').attr('type', 'button').attr('aria-label', Translate('Record video using a camera'));
+				var videobutton = $('<button>').addClass('ff_fileupload_dropzone_tool').addClass('ff_fileupload_recordvideo').attr('type', 'button').attr('aria-label', Translate('REC_VIDEO'));
 				dropzonetools.append(videobutton);
 
 				var videorecpreview = $('<video>').prop('muted', true).prop('autoplay', true).addClass('ff_fileupload_recordvideo_preview').addClass('ff_fileupload_hidden');
@@ -674,7 +724,7 @@
 									var blob = new Blob(videochunks, { type: 'video/mp4' });
 									blob.lastModifiedDate = new Date();
 									blob.lastModified = Math.floor(blob.lastModifiedDate.getTime() / 1000);
-									blob.name = FormatStr(Translate('Video recording - {0}.mp4'), blob.lastModifiedDate.toLocaleString());
+									blob.name = FormatStr(Translate('REC_VIDEO_DETAIL'), blob.lastModifiedDate.toLocaleString());
 
 									fileinput.fileupload('add', { files: [blob] });
 
@@ -703,7 +753,7 @@
 						// Video with audio (e.g. webcam) with fallback to video only (e.g. some screen recording codecs).
 						navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(streamhandler).catch(function(e) {
 							navigator.mediaDevices.getUserMedia({ video: true }).then(streamhandler).catch(function(e) {
-								alert(Translate('Unable to record video.  Either a camera was not found or access was denied.'));
+								alert(Translate('UNABLE_TO_REC_VIDEO'));
 							});
 						});
 					}
