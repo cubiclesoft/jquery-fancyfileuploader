@@ -9,7 +9,8 @@
 		// Allows a very limited number of characters through.
 		public static function FilenameSafe($filename)
 		{
-			return preg_replace('/\s+/', "-", trim(trim(preg_replace('/[^A-Za-z0-9_.\-]/', " ", $filename), ".")));
+			// Added Unicode support for some characters äöü... and allow spaces 
+			return preg_replace('/[^A-Za-z0-9\_\ \.\-\x{00C0}-\x{00FF}]/u', "_", $filename);
 		}
 
 		public static function NormalizeFiles($key)
