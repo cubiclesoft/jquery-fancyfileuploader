@@ -1,6 +1,6 @@
 <?php
 	// Fancy File Uploader helper class.  Combines some useful functions from FlexForms and FlexForms Modules.
-	// (C) 2020 CubicleSoft.  All Rights Reserved.
+	// (C) 2021 CubicleSoft.  All Rights Reserved.
 
 	class FancyFileUploaderHelper
 	{
@@ -96,7 +96,7 @@
 			return ($maxpostsize < 1 ? $maxuploadsize : min($maxpostsize, $maxuploadsize));
 		}
 
-		// Copy included for FlexForms self-containment.
+		// Copy included for class self-containment.
 		public static function ConvertUserStrToBytes($str)
 		{
 			$str = trim($str);
