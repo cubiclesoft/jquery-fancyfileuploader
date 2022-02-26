@@ -199,7 +199,7 @@
 					$name = substr($name, 0, -(strlen($files[0]["ext"]) + 1));
 
 					if (isset($options["filename_callback"]) && is_callable($options["filename_callback"]))  $filename = call_user_func_array($options["filename_callback"], array($name, strtolower($files[0]["ext"]), $files[0]));
-					else if (isset($options["filename"]))  $filename = str_replace(array("{name}", "{ext}"), array($name, strtolower($files[0]["ext"])), $options["filename"]);
+					else if (isset($options["filename"]))  $filename = (isset($options["fixed_filename"]) && $options["fixed_filename"] ? $options["filename"] : str_replace(array("{name}", "{ext}"), array($name, strtolower($files[0]["ext"])), $options["filename"]));
 					else  $filename = false;
 
 					if (!is_string($filename))  $result = array("success" => false, "error" => self::FFTranslate("The server did not set a valid filename."), "errorcode" => "invalid_filename");
@@ -241,7 +241,7 @@
 					$name = substr($files[0]["name"], 0, -(strlen($files[0]["ext"]) + 1));
 
 					if (isset($options["filename_callback"]) && is_callable($options["filename_callback"]))  $filename = call_user_func_array($options["filename_callback"], array($name, strtolower($files[0]["ext"]), $files[0]));
-					else if (isset($options["filename"]))  $filename = str_replace(array("{name}", "{ext}"), array($name, strtolower($files[0]["ext"])), $options["filename"]);
+					else if (isset($options["filename"]))  $filename = (isset($options["fixed_filename"]) && $options["fixed_filename"] ? $options["filename"] : str_replace(array("{name}", "{ext}"), array($name, strtolower($files[0]["ext"])), $options["filename"]));
 					else  $filename = false;
 
 					if (!is_string($filename))  $result = array("success" => false, "error" => self::FFTranslate("The server did not set a valid filename."), "errorcode" => "invalid_filename");
