@@ -160,9 +160,7 @@
 
 		public static function HandleUpload($filekey, $options = array())
 		{
-			if (!isset($_REQUEST["fileuploader"]) && !isset($_POST["fileuploader"]))  return false;
-
-			header("Content-Type: application/json");
+			if (!isset($_REQUEST["fileuploader"]) && !isset($_POST["fileuploader"]))  return array("success" => false, "error" => "No upload or missing 'fileuploader'.", "errorcode" => "no_upload");
 
 			if (isset($options["allowed_exts"]))
 			{
@@ -260,6 +258,8 @@
 			if ($result["success"] && isset($options["result_callback"]) && is_callable($options["result_callback"]))  call_user_func_array($options["result_callback"], array(&$result, $filename, $name, strtolower($files[0]["ext"]), $files[0], (isset($options["result_callback_opts"]) ? $options["result_callback_opts"] : false)));
 
 			if (isset($options["return_result"]) && $options["return_result"])  return $result;
+
+			header("Content-Type: application/json");
 
 			echo json_encode($result, JSON_UNESCAPED_SLASHES);
 			exit();
