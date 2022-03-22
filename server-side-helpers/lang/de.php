@@ -15,7 +15,7 @@
 			"Die Datei wurde nur teilweise hochgeladen.",
 
 		"No file was uploaded." =>
-			"Es wurde keine Datei hochgeladen."
+			"Es wurde keine Datei hochgeladen.",
 
 		"The configured temporary folder on the server is missing." =>
 			"Der temporäre Ordner auf dem LoxBerry ist nicht vorhanden.",
