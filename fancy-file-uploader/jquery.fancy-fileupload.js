@@ -249,6 +249,7 @@
 						if (settings.uploadcancelled)  settings.uploadcancelled.call(data.ff_info.inforow, e, data);
 					}
 
+					if (settings.fileremoved) settings.fileremoved.call(data.ff_info.inforow, e, data);
 					inforow.remove();
 
 					delete data.ff_info;
@@ -778,7 +779,8 @@
 		'startupload' : null,
 		'continueupload' : null,
 		'uploadcancelled' : null,
-		'uploadcompleted' : null,
+		'uploadcompleted': null,
+		'fileremoved': null,
 		'fileupload' : {},
 		'langmap' : {}
 	};
