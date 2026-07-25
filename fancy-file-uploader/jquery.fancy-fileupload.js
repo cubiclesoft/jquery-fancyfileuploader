@@ -1,5 +1,5 @@
 // jQuery plugin to display a custom jQuery File Uploader interface.
-// (C) 2020 CubicleSoft.  All Rights Reserved.
+// (C) 2026 CubicleSoft.  All Rights Reserved.
 
 (function($) {
 	var EscapeHTML = function(text) {
@@ -251,6 +251,8 @@
 
 					inforow.remove();
 
+					if (settings.removed)  settings.removed.call(data.ff_info.inforow, e, data);
+
 					delete data.ff_info;
 				}
 			};
@@ -269,6 +271,8 @@
 					}
 
 					inforow.remove();
+
+					if (settings.removed)  settings.removed.call(data.ff_info.inforow, e, data);
 
 					delete data.ff_info;
 				}
@@ -424,6 +428,8 @@
 			{
 				data.ff_info.inforow.remove();
 
+				if (settings.removed)  settings.removed.call(data.ff_info.inforow, e, data);
+
 				delete data.ff_info;
 			}
 			else
@@ -463,6 +469,8 @@
 			if (data.ff_info.removewidget)
 			{
 				data.ff_info.inforow.remove();
+
+				if (settings.removed)  settings.removed.call(data.ff_info.inforow, e, data);
 
 				delete data.ff_info;
 			}
@@ -779,6 +787,7 @@
 		'continueupload' : null,
 		'uploadcancelled' : null,
 		'uploadcompleted' : null,
+		'removed' : null,
 		'fileupload' : {},
 		'langmap' : {}
 	};
